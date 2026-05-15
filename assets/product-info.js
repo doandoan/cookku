@@ -459,11 +459,19 @@ if (!customElements.get('product-info')) {
 
           updateSourceFromDestination('price');
           // Fallback: theme uses <product-price> custom element instead of an
-          // element with id="price-{sectionId}". Sync its innerHTML directly.
+          // element with id="price-{sectionId}". Sync its innerHTML directly,
+          // but only if the source actually has content (avoid wiping the price
+          // when the server response doesn't include this element).
           try {
             const sourcePrice = html.querySelector('product-price');
             const destPrice = this.querySelector('product-price');
-            if (sourcePrice && destPrice && sourcePrice !== destPrice) {
+            if (
+              sourcePrice &&
+              destPrice &&
+              sourcePrice !== destPrice &&
+              sourcePrice.innerHTML.trim() !== '' &&
+              sourcePrice.querySelector('.price-product-container, .price')
+            ) {
               destPrice.innerHTML = sourcePrice.innerHTML;
             }
           } catch (e) {
