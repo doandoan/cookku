@@ -30,25 +30,36 @@
 
     subscribe(PUB_SUB_EVENTS.variantChange, function (event) {
       try {
+        console.log('[popup-price-fix] variantChange fired', event);
         var data = event && event.data;
-        if (!data || !data.html) return;
+        if (!data || !data.html) {
+          console.log('[popup-price-fix] no data.html, skip');
+          return;
+        }
 
         // Only handle popup contexts. The main page already has its own
         // working flow (or doesn't show a popup), so we don't want to touch
         // its price element from here.
         var modal = document.querySelector('quick-view-modal');
-        if (!modal || !modal.classList.contains('opened')) return;
+        console.log('[popup-price-fix] modal found:', !!modal, 'opened class:', modal?.classList.contains('opened'));
+        if (!modal) return;
 
         var popupInfo = modal.querySelector('product-info');
+        console.log('[popup-price-fix] popupInfo found:', !!popupInfo);
         if (!popupInfo) return;
 
         // Only react when the change came from this popup's product-info.
         var sectionId = data.sectionId;
         var popupSection = popupInfo.dataset.originalSection || popupInfo.dataset.section;
-        if (!sectionId || sectionId !== popupSection) return;
+        console.log('[popup-price-fix] event sectionId:', sectionId, 'popupSection:', popupSection);
+        if (!sectionId || sectionId !== popupSection) {
+          console.log('[popup-price-fix] section mismatch, skip');
+          return;
+        }
 
         var sourcePrice = data.html.querySelector('product-price');
         var destPrice = popupInfo.querySelector('product-price');
+        console.log('[popup-price-fix] source <product-price>:', !!sourcePrice, 'dest:', !!destPrice);
         if (!sourcePrice || !destPrice) return;
 
         // Make sure source has actual price markup; otherwise leave the
@@ -60,11 +71,16 @@
             sourcePrice.querySelector('.price-item') ||
             sourcePrice.querySelector('.price__container'));
 
+        console.log('[popup-price-fix] hasContent:', !!hasContent, 'src html len:', sourcePrice.innerHTML.length);
+
         if (hasContent) {
           destPrice.innerHTML = sourcePrice.innerHTML;
+          console.log('[popup-price-fix] price updated');
+        } else {
+          console.log('[popup-price-fix] source has no valid price markup; preview:', sourcePrice.innerHTML.substring(0, 200));
         }
       } catch (e) {
-        // Silent: never break checkout flow because of price fix.
+        console.error('[popup-price-fix] error:', e);
       }
     });
   }
