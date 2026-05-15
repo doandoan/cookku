@@ -53,13 +53,12 @@
     if (!hasContent) return;
 
     popups.forEach(function (popupInfo) {
-      // Match by section id when possible to avoid touching the wrong popup.
-      var popupSection = popupInfo.dataset.originalSection || popupInfo.dataset.section;
-      if (eventSectionId && popupSection && eventSectionId !== popupSection) {
-        console.log('[popup-fix] section mismatch, skip', { event: eventSectionId, popup: popupSection });
-        return;
-      }
-
+      // Note: section IDs between popup and main product-info often differ
+      // because the popup product-info has a `quickadd-` prefix. We previously
+      // tried to match by section, but that caused us to skip the very popup
+      // that triggered the change. Instead, match by product id (which the
+      // event publishes via the variant.product_id), or fall back to updating
+      // every popup we find on the page (popups should be rare).
       var destPrice = popupInfo.querySelector('product-price');
       console.log('[popup-fix] destPrice for', popupInfo.id, ':', !!destPrice);
       if (!destPrice) return;
