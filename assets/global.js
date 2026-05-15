@@ -2566,35 +2566,56 @@ class ColorSwatch extends HTMLElement {
         (variant) => variant.id === variantId
       );
 
-      if (selectedVariant.compare_at_price > selectedVariant.price) {
-        product.querySelector(".price").classList.add("price--on-sale");
+      if (selectedVariant) {
+        const priceEl = product.querySelector(".price");
+        const priceOldEl = product.querySelector(".price__sale .price-old");
+        const priceNewEl = product.querySelector(".price__sale .price-new");
+        const pricePercentEl = product.querySelector(".price__sale .price-percent");
+        const priceRegularEl = product.querySelector(".price__regular .price-item--regular");
 
-        product.querySelector(".price__sale .price-item--regular").innerHTML =
-          Shopify.formatMoney(
-            selectedVariant.compare_at_price,
-            window.money_format
-          );
+        if (selectedVariant.compare_at_price > selectedVariant.price) {
+          priceEl?.classList.add("price--on-sale");
 
-        product.querySelector(".price__sale .price-item--sale").innerHTML =
-          Shopify.formatMoney(selectedVariant.price, window.money_format);
+          if (priceOldEl) {
+            priceOldEl.innerHTML = Shopify.formatMoney(
+              selectedVariant.compare_at_price,
+              window.money_format
+            );
+          }
 
-        const labelSale = `(-${Math.round(
-          ((selectedVariant.compare_at_price - selectedVariant.price) * 100) /
-            selectedVariant.compare_at_price
-        )}%)`;
+          if (priceNewEl) {
+            priceNewEl.innerHTML = Shopify.formatMoney(
+              selectedVariant.price,
+              window.money_format
+            );
+          }
 
-        const salePercent = product.querySelector(
-          ".price__sale .price-item--percent span"
-        );
-        if (salePercent) salePercent.innerHTML = labelSale;
-      } else {
-        product.querySelector(".price__regular .price-item").innerHTML =
-          Shopify.formatMoney(selectedVariant.price, window.money_format);
+          if (pricePercentEl) {
+            const percent = Math.round(
+              ((selectedVariant.compare_at_price - selectedVariant.price) * 100) /
+                selectedVariant.compare_at_price
+            );
+            pricePercentEl.innerHTML = `-${percent}%`;
+          }
+        } else {
+          priceEl?.classList.remove("price--on-sale");
 
-        if (selectedVariant.compare_at_price == null) {
-          product.querySelector(".price").classList.remove("price--on-sale");
-          product.querySelector(".price__sale .price-item--regular").innerHTML =
-            "";
+          if (priceRegularEl) {
+            priceRegularEl.innerHTML = Shopify.formatMoney(
+              selectedVariant.price,
+              window.money_format
+            );
+          }
+
+          if (priceNewEl) {
+            priceNewEl.innerHTML = Shopify.formatMoney(
+              selectedVariant.price,
+              window.money_format
+            );
+          }
+
+          if (priceOldEl) priceOldEl.innerHTML = "";
+          if (pricePercentEl) pricePercentEl.innerHTML = "";
         }
       }
 
