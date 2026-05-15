@@ -50,6 +50,7 @@
         sourcePrice.querySelector('.price-new') ||
         sourcePrice.querySelector('.price-item') ||
         sourcePrice.querySelector('.price__container'));
+    console.log('[popup-fix] hasContent check:', !!hasContent, 'preview:', sourcePrice.innerHTML.substring(0, 300));
     if (!hasContent) return;
 
     popups.forEach(function (popupInfo) {
