@@ -56,12 +56,15 @@
       // Match by section id when possible to avoid touching the wrong popup.
       var popupSection = popupInfo.dataset.originalSection || popupInfo.dataset.section;
       if (eventSectionId && popupSection && eventSectionId !== popupSection) {
+        console.log('[popup-fix] section mismatch, skip', { event: eventSectionId, popup: popupSection });
         return;
       }
 
       var destPrice = popupInfo.querySelector('product-price');
+      console.log('[popup-fix] destPrice for', popupInfo.id, ':', !!destPrice);
       if (!destPrice) return;
       destPrice.innerHTML = sourcePrice.innerHTML;
+      console.log('[popup-fix] PRICE UPDATED for', popupInfo.id);
     });
   }
 
@@ -74,10 +77,21 @@
     subscribe(PUB_SUB_EVENTS.variantChange, function (event) {
       try {
         var data = event && event.data;
+        console.log('[popup-fix] variantChange', { hasData: !!data, hasHtml: !!data?.html, sectionId: data?.sectionId });
         if (!data || !data.html) return;
+
+        var popups = Array.from(document.querySelectorAll('product-info')).filter(isPopupProductInfo);
+        console.log('[popup-fix] popups found:', popups.length);
+        popups.forEach(function (p, i) {
+          console.log('[popup-fix] popup #' + i, { id: p.id, section: p.dataset.section, original: p.dataset.originalSection });
+        });
+
+        var sourcePrice = data.html.querySelector('product-price');
+        console.log('[popup-fix] source <product-price>:', !!sourcePrice, 'len:', sourcePrice?.innerHTML?.length);
+
         syncPopupPrice(data.html, data.sectionId);
       } catch (e) {
-        // silent
+        console.error('[popup-fix] error:', e);
       }
     });
   }
