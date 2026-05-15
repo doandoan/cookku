@@ -46,7 +46,7 @@
   class="product-recommendations"
   data-url="{{ routes.product_recommendations_url }}?limit={{ section.settings.products_to_show }}{{ intent }}"
   data-section-id="{{ section.id }}"
-  data-product-id="{{ section.settings.product.id | default: product.id }}"
+  data-product-id="{% if section.settings.product != blank %}{{ section.settings.product.id }}{% else %}{{ product.id }}{% endif %}"
   data-intent="{{ section.settings.recommendation_type }}"
   data-testid="product-recommendations-section"
   data-recommendations-performed="{{ recommendations.performed }}"
@@ -81,9 +81,14 @@
         {% content_for 'blocks' %}
       </div>
 
-      {%- if recommendations.performed or section.settings.product == blank -%}
+      {%- liquid
+        # Resolve current product: section setting if specified, otherwise the page's product
+        assign current_product = section.settings.product | default: product
+      -%}
+
+      {%- if recommendations.performed or current_product == blank -%}
         {% liquid
-          if section.settings.product == blank
+          if current_product == blank
             assign products = null
             # Onboarding mode: Show placeholder products
             for i in (1..section.settings.products_to_show)
@@ -93,7 +98,7 @@
           elsif recommendations.performed and recommendations.products_count == 0
             # No recommendations found, pull from catalog
             if section.settings.recommendation_type == 'related'
-              assign products = collections.all.products | reject: 'id', section.settings.product.id
+              assign products = collections.all.products | reject: 'id', current_product.id
             elsif section.settings.recommendation_type == 'complementary'
               # Do not recommend the All collection as complementary products
               assign products = null
