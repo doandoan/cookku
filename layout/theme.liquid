@@ -111,11 +111,6 @@
     {% render 'halo-popup' %}
     {% comment %} style variant product {% endcomment %}
 
-{% comment %}
-=== TẠM THỜI COMMENT ĐỂ TEST POPUP VARIANT PRICE UPDATE ===
-Nếu giá popup hoạt động đúng sau khi comment đoạn này → script này gây xung đột, cần viết lại có scope.
-Nếu vẫn không update → vấn đề ở chỗ khác.
-
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     function applyVariantStyles(container) {
@@ -300,7 +295,6 @@ Nếu vẫn không update → vấn đề ở chỗ khác.
     });
   });
 </script>
-{% endcomment %}
     
   </body>
 </html>
