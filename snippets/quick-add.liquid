@@ -317,6 +317,28 @@
       padding-block-start: 2.5rem;
     }
   }
+
+  /* === Quick Add popup customisations === */
+  /* Hide wishlist heart in popup */
+  quick-add-modal .wishlist-button,
+  quick-add-modal .card-wishlist,
+  #QuickStandardModal .wishlist-button,
+  #QuickStandardModal .card-wishlist {
+    display: none !important;
+  }
+
+  /* Make Add to cart button take full width once heart is gone */
+  quick-add-modal .add-to-cart-button-container,
+  #QuickStandardModal .add-to-cart-button-container {
+    width: 100% !important;
+    flex: 1 !important;
+  }
+
+  /* Pad the buy buttons row a bit */
+  quick-add-modal .product-form__buttons,
+  #QuickStandardModal .product-form__buttons {
+    gap: 1rem;
+  }
 {%- endstylesheet -%}
 
 {{ 'quick-order-list.css' | asset_url | stylesheet_tag }}
