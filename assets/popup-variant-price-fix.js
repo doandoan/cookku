@@ -4,83 +4,80 @@
  * Theme Ella renders the product price as <product-price> custom element
  * without an id="price-{sectionId}" wrapper. Shopify's stock product-info
  * code (updateSourceFromDestination('price')) looks for that id, so when a
- * variant is changed inside a quick-view popup, the price element never gets
- * the new HTML.
+ * variant is changed inside a quick-add / quick-view popup, the price element
+ * never gets the new HTML.
  *
- * Since the homepage uses <color-swatch> click handlers (which already work),
- * this issue only shows up in the popup, where the variant picker uses pill
- * buttons that go through the <product-info>.handleOptionValueChange flow.
+ * The popup container in this theme is <div id="QuickStandardModal"> and the
+ * popup product-info has its id prefixed with `MainProduct-quick-add-`. Both
+ * popup and main page product-info share the same dataset.section, so we must
+ * identify the popup by DOM ancestry (parent #QuickStandardModal, or id prefix
+ * "quick-add"), not by sectionId.
  *
- * Fix: subscribe to PUB_SUB_EVENTS.variantChange (published right after the
- * server response is processed). When the event fires, find <product-price>
- * inside the popup, copy innerHTML from the response HTML, and replace it.
- *
- * Safety: only sync when source HTML actually contains a valid price element,
- * so we never wipe the current price.
+ * Approach: subscribe to PUB_SUB_EVENTS.variantChange. The publisher includes
+ * the parsed response HTML in event.data.html. We find every <product-info>
+ * that lives inside a popup container and copy <product-price> innerHTML into
+ * it.
  */
 (function () {
   'use strict';
 
+  function isPopupProductInfo(productInfo) {
+    if (!productInfo) return false;
+    if (productInfo.closest('#QuickStandardModal')) return true;
+    if (productInfo.closest('quick-view-modal')) return true;
+    if (productInfo.closest('quick-add-modal')) return true;
+    var idAttr = productInfo.id || '';
+    if (idAttr.indexOf('quick-add') !== -1 || idAttr.indexOf('quickview') !== -1) return true;
+    return false;
+  }
+
+  function syncPopupPrice(sourceHtml, eventSectionId) {
+    if (!sourceHtml) return;
+
+    // Find all popup product-info elements; sync only the one whose section
+    // matches the event (or any visible popup if section can't be matched).
+    var popups = Array.from(document.querySelectorAll('product-info'))
+      .filter(isPopupProductInfo);
+    if (popups.length === 0) return;
+
+    var sourcePrice = sourceHtml.querySelector('product-price');
+    if (!sourcePrice) return;
+
+    // Validate source price has actual price markup; otherwise leave alone.
+    var hasContent =
+      sourcePrice.innerHTML.trim() !== '' &&
+      (sourcePrice.querySelector('.price-product-container') ||
+        sourcePrice.querySelector('.price-new') ||
+        sourcePrice.querySelector('.price-item') ||
+        sourcePrice.querySelector('.price__container'));
+    if (!hasContent) return;
+
+    popups.forEach(function (popupInfo) {
+      // Match by section id when possible to avoid touching the wrong popup.
+      var popupSection = popupInfo.dataset.originalSection || popupInfo.dataset.section;
+      if (eventSectionId && popupSection && eventSectionId !== popupSection) {
+        return;
+      }
+
+      var destPrice = popupInfo.querySelector('product-price');
+      if (!destPrice) return;
+      destPrice.innerHTML = sourcePrice.innerHTML;
+    });
+  }
+
   function init() {
     if (typeof subscribe !== 'function' || typeof PUB_SUB_EVENTS === 'undefined') {
-      // Theme JS hasn't initialised yet; retry shortly.
       setTimeout(init, 100);
       return;
     }
 
     subscribe(PUB_SUB_EVENTS.variantChange, function (event) {
       try {
-        console.log('[popup-price-fix] variantChange fired', event);
         var data = event && event.data;
-        if (!data || !data.html) {
-          console.log('[popup-price-fix] no data.html, skip');
-          return;
-        }
-
-        // Only handle popup contexts. The main page already has its own
-        // working flow (or doesn't show a popup), so we don't want to touch
-        // its price element from here.
-        var modal = document.querySelector('quick-view-modal');
-        console.log('[popup-price-fix] modal found:', !!modal, 'opened class:', modal?.classList.contains('opened'));
-        if (!modal) return;
-
-        var popupInfo = modal.querySelector('product-info');
-        console.log('[popup-price-fix] popupInfo found:', !!popupInfo);
-        if (!popupInfo) return;
-
-        // Only react when the change came from this popup's product-info.
-        var sectionId = data.sectionId;
-        var popupSection = popupInfo.dataset.originalSection || popupInfo.dataset.section;
-        console.log('[popup-price-fix] event sectionId:', sectionId, 'popupSection:', popupSection);
-        if (!sectionId || sectionId !== popupSection) {
-          console.log('[popup-price-fix] section mismatch, skip');
-          return;
-        }
-
-        var sourcePrice = data.html.querySelector('product-price');
-        var destPrice = popupInfo.querySelector('product-price');
-        console.log('[popup-price-fix] source <product-price>:', !!sourcePrice, 'dest:', !!destPrice);
-        if (!sourcePrice || !destPrice) return;
-
-        // Make sure source has actual price markup; otherwise leave the
-        // current price alone.
-        var hasContent =
-          sourcePrice.innerHTML.trim() !== '' &&
-          (sourcePrice.querySelector('.price-product-container') ||
-            sourcePrice.querySelector('.price-new') ||
-            sourcePrice.querySelector('.price-item') ||
-            sourcePrice.querySelector('.price__container'));
-
-        console.log('[popup-price-fix] hasContent:', !!hasContent, 'src html len:', sourcePrice.innerHTML.length);
-
-        if (hasContent) {
-          destPrice.innerHTML = sourcePrice.innerHTML;
-          console.log('[popup-price-fix] price updated');
-        } else {
-          console.log('[popup-price-fix] source has no valid price markup; preview:', sourcePrice.innerHTML.substring(0, 200));
-        }
+        if (!data || !data.html) return;
+        syncPopupPrice(data.html, data.sectionId);
       } catch (e) {
-        console.error('[popup-price-fix] error:', e);
+        // silent
       }
     });
   }
