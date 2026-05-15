@@ -458,6 +458,17 @@ if (!customElements.get('product-info')) {
           };
 
           updateSourceFromDestination('price');
+          // Fallback: theme uses <product-price> custom element instead of an
+          // element with id="price-{sectionId}". Sync its innerHTML directly.
+          try {
+            const sourcePrice = html.querySelector('product-price');
+            const destPrice = this.querySelector('product-price');
+            if (sourcePrice && destPrice && sourcePrice !== destPrice) {
+              destPrice.innerHTML = sourcePrice.innerHTML;
+            }
+          } catch (e) {
+            // silent
+          }
           updateSourceFromDestination('Sku', ({ classList }) => classList.contains('hidden'));
           updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
           updateSourceFromDestination('Volume');
