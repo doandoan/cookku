@@ -1,0 +1,298 @@
+<!doctype html>
+<html class="no-js{% if request.design_mode %} shopify-design-mode{% endif %}" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="">
+    <link
+      rel="canonical"
+      href="{{ canonical_url }}"
+      canonical-url="{{ shop.url }}/"
+    >
+
+    {%- if settings.favicon != blank -%}
+      <link
+        rel="icon"
+        type="image/png"
+        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
+      >
+    {%- endif -%}
+
+    {%- unless settings.type_header_font.system?
+      and settings.type_body_font.system?
+      and settings.type_subheading_font.system?
+    -%}
+      <link
+        rel="preconnect"
+        href="https://fonts.shopifycdn.com"
+        crossorigin
+      >
+    {%- endunless -%}
+
+    <title>
+      {{ page_title }}
+      {%- if current_tags %}
+        &ndash; tagged "{{ current_tags | join: ', ' }}"
+      {%- endif -%}
+      {%- if current_page != 1 %}
+        &ndash; Page {{ current_page -}}
+      {%- endif -%}
+      {%- unless page_title contains shop.name %}
+        &ndash; {{ shop.name -}}
+      {%- endunless -%}
+    </title>
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+
+    {% render 'meta-tags' %}
+
+    {% render 'global-style' %}
+
+    {% render 'global-css' %}
+
+    {%- render 'global-script' -%}
+
+    {{ content_for_header }}
+  </head>
+
+  <body
+    class="
+      template-{{ request.page_type | replace: 'customers/', '' }}
+      {% if settings.animations_hover_elements != 'none' %} card-hover--{{ settings.animations_hover_elements }}{% endif %}
+      {% if settings.animation_hover_buttons %} button-hover--effect{% endif %}
+      {% if settings.enable_preloading_screen %} has--preload-screen{% endif %}
+    "
+  >
+    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+
+    {%- if settings.enable_preloading_screen -%}
+      {% render 'preload-screen' %}
+    {%- endif -%}
+
+    <script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'details-modal.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
+
+    <div id="header-group">
+      {% sections 'header-group' %}
+    </div>
+
+    {%- liquid
+      sections 'popup-group'
+      sections 'general-group'
+      sections 'toolbar-mobile'
+    -%}
+
+    <main
+      id="MainContent"
+      class="content-for-layout focus-none"
+      role="main"
+      tabindex="-1"
+    >
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    <ul hidden>
+      <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>
+      <li id="a11y-new-window-message">{{ 'accessibility.link_messages.new_window' | t }}</li>
+    </ul>
+
+    {%- if settings.predictive_search_enabled -%}
+      <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {% render 'halo-popup' %}
+    {% comment %} style variant product {% endcomment %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function applyVariantStyles(container) {
+      const root = container || document;
+
+      // ===== 1. PILL / BUTTON VARIANTS =====
+      const fieldsets = root.querySelectorAll('fieldset.product-form__input--pill, fieldset.variant-option--pill');
+      fieldsets.forEach((fieldset) => {
+        const inputs = fieldset.querySelectorAll('input[type="radio"]');
+        inputs.forEach((input) => {
+          const label = fieldset.querySelector(`label[for="${input.id}"]`);
+          if (!label) return;
+          const isSelected = input.checked || label.classList.contains('checked');
+          if (isSelected) {
+            label.style.cssText =
+              'background-color: #D4AF37 !important; color: #000000 !important; border: 2px solid #D4AF37 !important; font-weight: 700 !important; padding: 10px 22px !important; border-radius: 999px !important; display: inline-block !important; margin: 4px 6px 4px 0 !important; cursor: pointer !important; transition: all 0.2s ease !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.3) !important;';
+          } else {
+            label.style.cssText =
+              'background-color: #1A1A1A !important; color: #E5E5E5 !important; border: 1px solid #2A2A2A !important; padding: 10px 22px !important; border-radius: 999px !important; cursor: pointer !important; display: inline-block !important; margin: 4px 6px 4px 0 !important; font-weight: 500 !important; transition: all 0.2s ease !important;';
+          }
+        });
+      });
+
+      // ===== 2. COLOR SWATCH VARIANTS =====
+      const swatchFieldsets = root.querySelectorAll('fieldset.variant-option--swatches');
+      swatchFieldsets.forEach((fieldset) => {
+        const inputs = fieldset.querySelectorAll('input[type="radio"]');
+        inputs.forEach((input) => {
+          const label = fieldset.querySelector(`label[for="${input.id}"]`);
+          if (!label) return;
+          const swatchSpan = label.querySelector('.swatch');
+          const isSelected = input.checked || label.classList.contains('checked');
+          if (isSelected) {
+            label.style.outline = '2px solid #D4AF37';
+            label.style.outlineOffset = '2px';
+            label.style.borderRadius = '4px';
+            label.style.display = 'block';
+            if (swatchSpan) {
+              swatchSpan.style.opacity = '1';
+              swatchSpan.style.transform = 'scale(1.05)';
+              swatchSpan.style.transition = 'all 0.2s ease';
+            }
+          } else {
+            label.style.outline = '1px solid #2A2A2A';
+            label.style.outlineOffset = '2px';
+            label.style.borderRadius = '4px';
+            label.style.display = 'block';
+            if (swatchSpan) {
+              swatchSpan.style.opacity = '0.7';
+              swatchSpan.style.transform = 'scale(1)';
+              swatchSpan.style.transition = 'all 0.2s ease';
+            }
+          }
+        });
+      });
+
+      // ===== 3. LEGEND =====
+      const legends = root.querySelectorAll(
+        'fieldset.product-form__input--pill .form__label, fieldset.variant-option--pill .form__label, fieldset.variant-option--swatches .form__label'
+      );
+      legends.forEach((legend) => {
+        legend.style.cssText =
+          'color: #FFFFFF !important; font-size: 14px !important; font-weight: 600 !important; margin-bottom: 10px !important; display: block !important;';
+        const selectedValue = legend.querySelector('[data-selected-value]');
+        if (selectedValue) {
+          selectedValue.style.cssText =
+            'color: #D4AF37 !important; font-weight: 700 !important; margin-left: 4px !important;';
+        }
+      });
+
+      // ===== 4. STICKY ATC BACKGROUND FIX =====
+      const stickyAtc = document.querySelector('sticky-atc');
+      if (stickyAtc) {
+        stickyAtc.style.cssText =
+          'background-color: #0A0A0A !important; background: #0A0A0A !important; border-top: 1px solid #2A2A2A !important;';
+      }
+      const stickyVariant = document.querySelector('.sticky-atc__variant');
+      if (stickyVariant) stickyVariant.style.cssText = 'background-color: #0A0A0A !important;';
+      const stickySection = document.querySelector('.sticky-atc__variant .section');
+      if (stickySection) stickySection.style.cssText = 'background-color: #0A0A0A !important;';
+      const stickyInfo = document.querySelector('.sticky-atc__info');
+      if (stickyInfo) stickyInfo.style.cssText = 'background-color: transparent !important;';
+      const stickyTitle = document.querySelector('.sticky-atc__title span');
+      if (stickyTitle) stickyTitle.style.cssText = 'color: #FFFFFF !important;';
+    }
+
+    // ===== 5. SYNC GIÁ - dùng event thay vì observe =====
+    function syncStickyPrice() {
+      const stickyPriceContainer = document.querySelector('.sticky-atc__price');
+      if (!stickyPriceContainer) return;
+
+      const mainPriceNew = document.querySelector('.product-information .price-new, #MainProduct .price-new, [data-section*="main"] .price-new');
+      const mainPriceOld = document.querySelector('.product-information .price-old, #MainProduct .price-old, [data-section*="main"] .price-old');
+      const mainPricePercent = document.querySelector('.product-information .price-percent, #MainProduct .price-percent, [data-section*="main"] .price-percent');
+
+      if (!mainPriceNew) return;
+
+      const stickyPriceNew = stickyPriceContainer.querySelector('.price-new');
+      const stickyPriceOld = stickyPriceContainer.querySelector('.price-old');
+      const stickyPricePercent = stickyPriceContainer.querySelector('.price-percent');
+
+      if (stickyPriceNew) stickyPriceNew.textContent = mainPriceNew.textContent;
+      if (stickyPriceOld && mainPriceOld) stickyPriceOld.textContent = mainPriceOld.textContent;
+      if (stickyPricePercent && mainPricePercent) stickyPricePercent.textContent = mainPricePercent.textContent;
+    }
+
+    // ===== CHẠY LẦN ĐẦU =====
+    applyVariantStyles();
+
+    // ===== CLICK VARIANT =====
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('fieldset.product-form__input--pill, fieldset.variant-option--pill, fieldset.variant-option--swatches')) {
+        applyVariantStyles();
+        setTimeout(applyVariantStyles, 50);
+        setTimeout(syncStickyPrice, 100); // Sync giá sau khi Shopify update xong
+        setTimeout(syncStickyPrice, 300);
+      }
+    });
+
+    // ===== CLICK MỞ POPUP =====
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-quick-view], [data-quick-add], .quick-view-button, .quick-add-button, modal-opener, side-drawer-opener')) {
+        setTimeout(applyVariantStyles, 100);
+        setTimeout(applyVariantStyles, 300);
+        setTimeout(applyVariantStyles, 600);
+        setTimeout(applyVariantStyles, 1000);
+      }
+    });
+
+    // ===== SHOPIFY VARIANT CHANGE EVENT =====
+    // Shopify dispatch event này khi variant thay đổi
+    document.addEventListener('variant:change', function (e) {
+      setTimeout(syncStickyPrice, 50);
+      setTimeout(syncStickyPrice, 200);
+    });
+
+    // Fallback: lắng nghe custom event của theme Ella
+    document.addEventListener('theme:variant:change', syncStickyPrice);
+    document.addEventListener('variantChange', syncStickyPrice);
+
+    // ===== MUTATION OBSERVER - CHỈ observe class, KHÔNG characterData =====
+    const globalObserver = new MutationObserver(function (mutations) {
+      let needsUpdate = false;
+
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1 && node.querySelector) {
+            if (
+              node.querySelector('fieldset.product-form__input--pill') ||
+              node.querySelector('fieldset.variant-option--pill') ||
+              node.querySelector('fieldset.variant-option--swatches')
+            ) {
+              needsUpdate = true;
+            }
+          }
+        });
+
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (
+            mutation.target.tagName === 'LABEL' ||
+            mutation.target.tagName === 'INPUT' ||
+            mutation.target.tagName === 'STICKY-ATC'
+          ) {
+            needsUpdate = true;
+          }
+        }
+      });
+
+      if (needsUpdate) {
+        applyVariantStyles();
+        setTimeout(applyVariantStyles, 100);
+        setTimeout(applyVariantStyles, 300);
+      }
+    });
+
+    // KHÔNG có characterData nữa
+    globalObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  });
+</script>
+    
+  </body>
+</html>
