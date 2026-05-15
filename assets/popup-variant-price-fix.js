@@ -1,22 +1,20 @@
 /**
  * Popup Variant Price Fix
  *
- * Theme Ella renders the product price as <product-price> custom element
- * without an id="price-{sectionId}" wrapper. Shopify's stock product-info
- * code (updateSourceFromDestination('price')) looks for that id, so when a
- * variant is changed inside a quick-add / quick-view popup, the price element
- * never gets the new HTML.
+ * Issue: when user picks a variant pill inside the quick-add / quick-view
+ * popup, Shopify product-info refetches the page with a `quickadd-...`
+ * section id. That section in this theme renders <product-price> WITHOUT
+ * the price markup (it only contains a "sold/viewing" urgency block). As a
+ * result, the popup price element never updates.
  *
- * The popup container in this theme is <div id="QuickStandardModal"> and the
- * popup product-info has its id prefixed with `MainProduct-quick-add-`. Both
- * popup and main page product-info share the same dataset.section, so we must
- * identify the popup by DOM ancestry (parent #QuickStandardModal, or id prefix
- * "quick-add"), not by sectionId.
+ * Approach: bypass the section render flow. Subscribe to
+ * PUB_SUB_EVENTS.variantChange — its `data.variant` carries the up-to-date
+ * Shopify variant object (price, compare_at_price). Format the price using
+ * Shopify.formatMoney and rewrite the popup's <product-price> inner DOM.
  *
- * Approach: subscribe to PUB_SUB_EVENTS.variantChange. The publisher includes
- * the parsed response HTML in event.data.html. We find every <product-info>
- * that lives inside a popup container and copy <product-price> innerHTML into
- * it.
+ * We only target popups (product-info inside #QuickStandardModal,
+ * <quick-view-modal>, <quick-add-modal>, or with id containing "quick-add"),
+ * so the main product page is untouched.
  */
 (function () {
   'use strict';
@@ -31,40 +29,60 @@
     return false;
   }
 
-  function syncPopupPrice(sourceHtml, eventSectionId) {
-    if (!sourceHtml) return;
+  function formatMoney(amountCents) {
+    if (window.Shopify && typeof Shopify.formatMoney === 'function') {
+      return Shopify.formatMoney(amountCents, window.money_format || '${{amount}}');
+    }
+    // Fallback: render as plain dollars.
+    return '$' + (amountCents / 100).toFixed(2);
+  }
 
-    // Find all popup product-info elements; sync only the one whose section
-    // matches the event (or any visible popup if section can't be matched).
-    var popups = Array.from(document.querySelectorAll('product-info'))
-      .filter(isPopupProductInfo);
+  function updatePopupPrice(popupInfo, variant) {
+    if (!popupInfo || !variant) return;
+    var priceEl = popupInfo.querySelector('product-price');
+    if (!priceEl) return;
+
+    var container = priceEl.querySelector('.price-product-container, .price');
+    if (!container) return;
+
+    var hasSale = variant.compare_at_price && variant.compare_at_price > variant.price;
+
+    // Toggle sale state on the container.
+    container.classList.toggle('price--on-sale', !!hasSale);
+    container.classList.toggle('price--no-compare', !hasSale);
+
+    // .price-new (current price) — present in both sale and regular.
+    var newPriceEl = container.querySelector('.price-new');
+    if (newPriceEl) {
+      newPriceEl.textContent = formatMoney(variant.price);
+    }
+
+    // .price-old (compare-at price) — only meaningful on sale.
+    var oldPriceEl = container.querySelector('.price-old');
+    if (oldPriceEl) {
+      oldPriceEl.textContent = hasSale ? formatMoney(variant.compare_at_price) : '';
+    }
+
+    // .price-percent — discount percent badge.
+    var percentEl = container.querySelector('.price-percent');
+    if (percentEl) {
+      if (hasSale) {
+        var diff = variant.compare_at_price - variant.price;
+        var pct = Math.round((diff * 100) / variant.compare_at_price);
+        percentEl.textContent = '-' + pct + '%';
+      } else {
+        percentEl.textContent = '';
+      }
+    }
+  }
+
+  function syncFromEvent(eventData) {
+    if (!eventData || !eventData.variant) return;
+    var popups = Array.from(document.querySelectorAll('product-info')).filter(isPopupProductInfo);
     if (popups.length === 0) return;
 
-    var sourcePrice = sourceHtml.querySelector('product-price');
-    if (!sourcePrice) return;
-
-    // Validate source price has actual price markup; otherwise leave alone.
-    var hasContent =
-      sourcePrice.innerHTML.trim() !== '' &&
-      (sourcePrice.querySelector('.price-product-container') ||
-        sourcePrice.querySelector('.price-new') ||
-        sourcePrice.querySelector('.price-item') ||
-        sourcePrice.querySelector('.price__container'));
-    console.log('[popup-fix] hasContent check:', !!hasContent, 'preview:', sourcePrice.innerHTML.substring(0, 300));
-    if (!hasContent) return;
-
     popups.forEach(function (popupInfo) {
-      // Note: section IDs between popup and main product-info often differ
-      // because the popup product-info has a `quickadd-` prefix. We previously
-      // tried to match by section, but that caused us to skip the very popup
-      // that triggered the change. Instead, match by product id (which the
-      // event publishes via the variant.product_id), or fall back to updating
-      // every popup we find on the page (popups should be rare).
-      var destPrice = popupInfo.querySelector('product-price');
-      console.log('[popup-fix] destPrice for', popupInfo.id, ':', !!destPrice);
-      if (!destPrice) return;
-      destPrice.innerHTML = sourcePrice.innerHTML;
-      console.log('[popup-fix] PRICE UPDATED for', popupInfo.id);
+      updatePopupPrice(popupInfo, eventData.variant);
     });
   }
 
@@ -76,22 +94,9 @@
 
     subscribe(PUB_SUB_EVENTS.variantChange, function (event) {
       try {
-        var data = event && event.data;
-        console.log('[popup-fix] variantChange', { hasData: !!data, hasHtml: !!data?.html, sectionId: data?.sectionId });
-        if (!data || !data.html) return;
-
-        var popups = Array.from(document.querySelectorAll('product-info')).filter(isPopupProductInfo);
-        console.log('[popup-fix] popups found:', popups.length);
-        popups.forEach(function (p, i) {
-          console.log('[popup-fix] popup #' + i, { id: p.id, section: p.dataset.section, original: p.dataset.originalSection });
-        });
-
-        var sourcePrice = data.html.querySelector('product-price');
-        console.log('[popup-fix] source <product-price>:', !!sourcePrice, 'len:', sourcePrice?.innerHTML?.length);
-
-        syncPopupPrice(data.html, data.sectionId);
+        syncFromEvent(event && event.data);
       } catch (e) {
-        console.error('[popup-fix] error:', e);
+        // silent
       }
     });
   }
