@@ -83,7 +83,11 @@
 
       {%- liquid
         # Resolve current product: section setting if specified, otherwise the page's product
-        assign current_product = section.settings.product | default: product
+        if section.settings.product != blank
+          assign current_product = section.settings.product
+        else
+          assign current_product = product
+        endif
       -%}
 
       {%- if recommendations.performed or current_product == blank -%}
@@ -108,6 +112,12 @@
             assign products = recommendations.products
           endif
         %}
+        {%- comment -%} Fallback: ensure products list never blank when we have a current product {%- endcomment -%}
+        {%- if products == blank or products.size == 0 -%}
+          {%- if current_product != blank -%}
+            {%- assign products = collections.all.products | reject: 'id', current_product.id -%}
+          {%- endif -%}
+        {%- endif -%}
         {% capture list_items %}
           {% for product in products limit: max_items %}
             <li id="Slide-{{ section.id }}-{{ product.id }}-{{ forloop.index }}" class="grid__item{% if show_mobile_slider or layout_type == 'carousel' %} swiper-slide{% endif %}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
