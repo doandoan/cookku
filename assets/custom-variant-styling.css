@@ -184,17 +184,14 @@ sticky-atc {
    with the main image.
    ============================================================ */
 .product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails {
-  --card-grid-per-row-desktop: 6;
+  --card-grid-per-row: 6 !important;
+  --card-grid-per-row-desktop: 6 !important;
+  --card-grid-per-row-tablet: 6 !important;
 }
 
-@media screen and (min-width: 1024px) {
-  .product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails.lg\:grid-layout--4 {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-@media screen and (min-width: 750px) and (max-width: 1023px) {
-  .product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails.md\:grid-layout--4 {
-    grid-template-columns: repeat(6, 1fr);
+@media screen and (min-width: 750px) {
+  .product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails > * {
+    --card-grid-per-row: 6 !important;
+    width: calc(100% / 6 - var(--card-grid-gap, 8px) * 5 / 6);
   }
 }
