@@ -102,3 +102,26 @@ sticky-atc {
 .sticky-atc__title span {
   color: #FFFFFF;
 }
+
+
+/* ============================================================
+   5. Product page — sticky image column
+   Image stays pinned while right column scrolls. The default
+   theme rule alone is overridden by grid stretch behaviour, so
+   we anchor the media to the top and cap its height at viewport.
+   ============================================================ */
+@media screen and (min-width: 750px) {
+  .product-information__grid .product-information__media {
+    position: sticky;
+    top: var(--sticky-header-offset, 1rem);
+    align-self: flex-start;
+    max-height: calc(100vh - var(--sticky-header-offset, 1rem) - 2rem);
+    overflow: hidden auto;
+  }
+
+  /* Hide the scrollbar inside the sticky media column for a cleaner look,
+     but keep scroll functionality if a tall thumbnail strip needs it. */
+  .product-information__grid .product-information__media::-webkit-scrollbar {
+    width: 0;
+  }
+}
