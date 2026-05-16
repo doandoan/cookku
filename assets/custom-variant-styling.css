@@ -157,39 +157,36 @@ sticky-atc {
 
 /* ============================================================
    7. Product page — stack Quantity & Add to cart on separate
-   rows, both full width. Desktop only — on mobile keep the
-   theme's natural inline layout where Quantity stays narrow.
+   rows, both full width.
    ============================================================ */
-@media screen and (min-width: 750px) {
-  .product-details .product-form__buttons,
-  .main-product-information .product-form__buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    width: 100%;
-  }
+.product-details .product-form__buttons,
+.main-product-information .product-form__buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  width: 100%;
+}
 
-  /* Quantity row: take full width, but the stepper itself stays its natural size. */
-  .product-details .product-form__quantity,
-  .main-product-information .product-form__quantity {
-    width: 100%;
-  }
+/* Quantity row: take full width, but the stepper itself stays its natural size. */
+.product-details .product-form__quantity,
+.main-product-information .product-form__quantity {
+  width: 100%;
+}
 
-  /* Add to cart wrapper takes full row */
-  .product-details .add-to-cart-button-container,
-  .main-product-information .add-to-cart-button-container {
-    width: 100%;
-    flex: 1 1 auto;
-  }
+/* Add to cart wrapper takes full row */
+.product-details .add-to-cart-button-container,
+.main-product-information .add-to-cart-button-container {
+  width: 100%;
+  flex: 1 1 auto;
+}
 
-  .product-details .add-to-cart-button-container .button,
-  .product-details .add-to-cart-button-container button[name="add"],
-  .main-product-information .add-to-cart-button-container .button,
-  .main-product-information .add-to-cart-button-container button[name="add"] {
-    width: 100%;
-    min-width: 0;
-  }
+.product-details .add-to-cart-button-container .button,
+.product-details .add-to-cart-button-container button[name="add"],
+.main-product-information .add-to-cart-button-container .button,
+.main-product-information .add-to-cart-button-container button[name="add"] {
+  width: 100%;
+  min-width: 0;
 }
 
 
@@ -208,42 +205,5 @@ sticky-atc {
   .product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails > * {
     --card-grid-per-row: 6 !important;
     width: calc(100% / 6 - var(--card-grid-gap, 8px) * 5 / 6);
-  }
-}
-
-
-/* ============================================================
-   9. Mobile-specific tweaks (<750px)
-   - Smaller variant pills so 3-4 fit in a row on narrow screens
-   - Smaller H1 title to keep long product names readable
-   - Tighter description line-height
-   ============================================================ */
-@media screen and (max-width: 749px) {
-  /* Variant pills compact on mobile */
-  fieldset.product-form__input--pill label[for],
-  fieldset.variant-option--pill label[for] {
-    padding: 8px 16px;
-    font-size: 14px;
-  }
-
-  fieldset.product-form__input--pill input[type="radio"]:checked + label,
-  fieldset.product-form__input--pill label.checked,
-  fieldset.variant-option--pill input[type="radio"]:checked + label,
-  fieldset.variant-option--pill label.checked {
-    padding: 8px 16px;
-  }
-
-  /* Smaller heading inside product details on mobile */
-  .product-details .card--block-title h1,
-  .product-details .text-block h1,
-  .product-details h1 {
-    font-size: 2.2rem;
-    line-height: 1.25;
-  }
-
-  /* Description: comfortable reading line-height */
-  .product-details .text-block.rte,
-  .product-details .text-block p {
-    line-height: 1.6;
   }
 }
