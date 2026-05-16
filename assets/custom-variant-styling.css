@@ -125,3 +125,19 @@ sticky-atc {
     width: 0;
   }
 }
+
+
+/* ============================================================
+   6. Product page — balance image vs info column ratio
+   Theme defaults to 2fr/1.34fr (≈60/40), making the right
+   column feel cramped. We rebalance closer to 50/50.
+   ============================================================ */
+@media screen and (min-width: 1200px) {
+  .product-information__grid:not(.product-information__grid--half):not(:has(.product-information__media:empty)).product-information--media-left {
+    grid-template-columns: 1.1fr 1fr;
+  }
+
+  .product-information__grid:not(.product-information__grid--half):not(:has(.product-information__media:empty)).product-information--media-right {
+    grid-template-columns: 1fr 1.1fr;
+  }
+}
