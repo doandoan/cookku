@@ -108,13 +108,15 @@ sticky-atc {
    5. Product page — sticky image column
    Image stays pinned while right column scrolls. Cap the
    gallery height to fit viewport so tall images don't overflow.
+   The top offset accounts for the sticky header height so the
+   image isn't covered when it pins.
    ============================================================ */
 @media screen and (min-width: 750px) {
   .product-information__grid .product-information__media {
     position: sticky;
-    top: var(--sticky-header-offset, 1rem);
+    top: calc(var(--header-height, 80px) + 1rem);
     align-self: flex-start;
-    max-height: calc(100vh - var(--sticky-header-offset, 1rem) - 2rem);
+    max-height: calc(100vh - var(--header-height, 80px) - 2rem);
   }
 
   /* Constrain main image media items so they shrink to fit the sticky
@@ -122,13 +124,13 @@ sticky-atc {
   .product-information__grid .product-information__media .swiper-main,
   .product-information__grid .product-information__media .swiper-main .swiper,
   .product-information__grid .product-information__media .swiper-main .swiper-slide {
-    max-height: calc(100vh - var(--sticky-header-offset, 1rem) - 8rem);
+    max-height: calc(100vh - var(--header-height, 80px) - 8rem);
   }
 
   .product-information__grid .product-information__media .swiper-main img,
   .product-information__grid .product-information__media .swiper-main video,
   .product-information__grid .product-information__media .swiper-main .deferred-media {
-    max-height: calc(100vh - var(--sticky-header-offset, 1rem) - 8rem);
+    max-height: calc(100vh - var(--header-height, 80px) - 8rem);
     width: auto;
     height: auto;
     object-fit: contain;
