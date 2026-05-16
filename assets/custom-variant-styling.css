@@ -141,3 +141,30 @@ sticky-atc {
     grid-template-columns: 1fr 1.1fr;
   }
 }
+
+
+/* ============================================================
+   7. Product page — make Add to cart take all remaining width
+   in the buy-buttons row (next to Quantity).
+   ============================================================ */
+.product-details .add-to-cart-button-container,
+.main-product-information .add-to-cart-button-container {
+  flex: 1 1 auto;
+  width: auto;
+}
+
+.product-details .add-to-cart-button-container .button,
+.product-details .add-to-cart-button-container button[name="add"],
+.main-product-information .add-to-cart-button-container .button,
+.main-product-information .add-to-cart-button-container button[name="add"] {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Ensure the parent row is a flex container so flex:1 works above. */
+.product-details .product-form__buttons,
+.main-product-information .product-form__buttons {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+}
