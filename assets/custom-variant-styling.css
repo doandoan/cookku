@@ -1,0 +1,104 @@
+/**
+ * Custom Variant Styling — Cookku gold/dark theme
+ *
+ * Replaces the inline JS that used to push !important styles onto every
+ * variant label on every click. Pure CSS so the browser handles it natively
+ * and we don't need to re-run on every DOM mutation.
+ */
+
+/* ============================================================
+   1. Pill / button variants
+   ============================================================ */
+fieldset.product-form__input--pill label[for],
+fieldset.variant-option--pill label[for] {
+  background-color: #1A1A1A;
+  color: #E5E5E5;
+  border: 1px solid #2A2A2A;
+  padding: 10px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-block;
+  margin: 4px 6px 4px 0;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+fieldset.product-form__input--pill input[type="radio"]:checked + label,
+fieldset.product-form__input--pill label.checked,
+fieldset.variant-option--pill input[type="radio"]:checked + label,
+fieldset.variant-option--pill label.checked {
+  background-color: #D4AF37;
+  color: #000000;
+  border: 2px solid #D4AF37;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
+}
+
+/* ============================================================
+   2. Color swatch variants
+   ============================================================ */
+fieldset.variant-option--swatches label[for] {
+  outline: 1px solid #2A2A2A;
+  outline-offset: 2px;
+  border-radius: 4px;
+  display: block;
+}
+
+fieldset.variant-option--swatches label[for] .swatch {
+  opacity: 0.7;
+  transform: scale(1);
+  transition: all 0.2s ease;
+}
+
+fieldset.variant-option--swatches input[type="radio"]:checked + label,
+fieldset.variant-option--swatches label.checked {
+  outline: 2px solid #D4AF37;
+}
+
+fieldset.variant-option--swatches input[type="radio"]:checked + label .swatch,
+fieldset.variant-option--swatches label.checked .swatch {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   3. Legend / form label
+   ============================================================ */
+fieldset.product-form__input--pill .form__label,
+fieldset.variant-option--pill .form__label,
+fieldset.variant-option--swatches .form__label {
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: block;
+}
+
+fieldset.product-form__input--pill .form__label [data-selected-value],
+fieldset.variant-option--pill .form__label [data-selected-value],
+fieldset.variant-option--swatches .form__label [data-selected-value] {
+  color: #D4AF37;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+/* ============================================================
+   4. Sticky add-to-cart bar — dark theme
+   ============================================================ */
+sticky-atc {
+  background-color: #0A0A0A;
+  border-top: 1px solid #2A2A2A;
+}
+
+.sticky-atc__variant,
+.sticky-atc__variant .section {
+  background-color: #0A0A0A;
+}
+
+.sticky-atc__info {
+  background-color: transparent;
+}
+
+.sticky-atc__title span {
+  color: #FFFFFF;
+}
