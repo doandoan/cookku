@@ -144,13 +144,29 @@ sticky-atc {
 
 
 /* ============================================================
-   7. Product page — make Add to cart take all remaining width
-   in the buy-buttons row (next to Quantity).
+   7. Product page — stack Quantity & Add to cart on separate
+   rows, both full width.
    ============================================================ */
+.product-details .product-form__buttons,
+.main-product-information .product-form__buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Quantity row: take full width, but the stepper itself stays its natural size. */
+.product-details .product-form__quantity,
+.main-product-information .product-form__quantity {
+  width: 100%;
+}
+
+/* Add to cart wrapper takes full row */
 .product-details .add-to-cart-button-container,
 .main-product-information .add-to-cart-button-container {
+  width: 100%;
   flex: 1 1 auto;
-  width: auto;
 }
 
 .product-details .add-to-cart-button-container .button,
@@ -159,12 +175,4 @@ sticky-atc {
 .main-product-information .add-to-cart-button-container button[name="add"] {
   width: 100%;
   min-width: 0;
-}
-
-/* Ensure the parent row is a flex container so flex:1 works above. */
-.product-details .product-form__buttons,
-.main-product-information .product-form__buttons {
-  display: flex;
-  align-items: stretch;
-  gap: 1rem;
 }
