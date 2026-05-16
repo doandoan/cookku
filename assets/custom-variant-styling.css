@@ -106,13 +106,33 @@ sticky-atc {
 
 /* ============================================================
    5. Product page — sticky image column
-   Image stays pinned while right column scrolls.
+   Image stays pinned while right column scrolls. Cap the
+   gallery height to fit viewport so tall images don't overflow.
    ============================================================ */
 @media screen and (min-width: 750px) {
   .product-information__grid .product-information__media {
     position: sticky;
     top: var(--sticky-header-offset, 1rem);
     align-self: flex-start;
+    max-height: calc(100vh - var(--sticky-header-offset, 1rem) - 2rem);
+  }
+
+  /* Constrain main image media items so they shrink to fit the sticky
+     viewport instead of overflowing beyond it. */
+  .product-information__grid .product-information__media .swiper-main,
+  .product-information__grid .product-information__media .swiper-main .swiper,
+  .product-information__grid .product-information__media .swiper-main .swiper-slide {
+    max-height: calc(100vh - var(--sticky-header-offset, 1rem) - 8rem);
+  }
+
+  .product-information__grid .product-information__media .swiper-main img,
+  .product-information__grid .product-information__media .swiper-main video,
+  .product-information__grid .product-information__media .swiper-main .deferred-media {
+    max-height: calc(100vh - var(--sticky-header-offset, 1rem) - 8rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin-inline: auto;
   }
 }
 
