@@ -176,3 +176,25 @@ sticky-atc {
   width: 100%;
   min-width: 0;
 }
+
+
+/* ============================================================
+   8. Product page — bottom thumbnails: show 6 per row instead
+   of theme default 4, so each thumb is smaller and balanced
+   with the main image.
+   ============================================================ */
+.product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails {
+  --card-grid-per-row-desktop: 6;
+}
+
+@media screen and (min-width: 1024px) {
+  .product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails.lg\:grid-layout--4 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media screen and (min-width: 750px) and (max-width: 1023px) {
+  .product-information__media .swiper-controls__thumbnails-container[data-thumbnail-position='bottom'] .swiper-controls__thumbnails.md\:grid-layout--4 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
