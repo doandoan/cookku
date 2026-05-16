@@ -110,9 +110,11 @@ sticky-atc {
    gallery height to fit viewport so tall images don't overflow.
    The top offset accounts for the sticky header height so the
    image isn't covered when it pins.
+   Scoped to <main> so quick-add and quick-view popups don't
+   inherit these constraints.
    ============================================================ */
 @media screen and (min-width: 750px) {
-  .product-information__grid .product-information__media {
+  main .product-information__grid .product-information__media {
     position: sticky;
     top: calc(var(--header-height, 80px) + 1rem);
     align-self: flex-start;
@@ -121,15 +123,15 @@ sticky-atc {
 
   /* Constrain main image media items so they shrink to fit the sticky
      viewport instead of overflowing beyond it. */
-  .product-information__grid .product-information__media .swiper-main,
-  .product-information__grid .product-information__media .swiper-main .swiper,
-  .product-information__grid .product-information__media .swiper-main .swiper-slide {
+  main .product-information__grid .product-information__media .swiper-main,
+  main .product-information__grid .product-information__media .swiper-main .swiper,
+  main .product-information__grid .product-information__media .swiper-main .swiper-slide {
     max-height: calc(100vh - var(--header-height, 80px) - 8rem);
   }
 
-  .product-information__grid .product-information__media .swiper-main img,
-  .product-information__grid .product-information__media .swiper-main video,
-  .product-information__grid .product-information__media .swiper-main .deferred-media {
+  main .product-information__grid .product-information__media .swiper-main img,
+  main .product-information__grid .product-information__media .swiper-main video,
+  main .product-information__grid .product-information__media .swiper-main .deferred-media {
     max-height: calc(100vh - var(--header-height, 80px) - 8rem);
     width: auto;
     height: auto;
